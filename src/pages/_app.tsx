@@ -1,6 +1,6 @@
 import type { AppType } from "next/app";
 import { Box, CssBaseline } from "@mui/material";
-import { trpc } from "../utils/trpc";
+import { trpc } from "@/utils/trpc";
 import { TopBar } from "@/components/topBar";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
