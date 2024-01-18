@@ -1,0 +1,41 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Student {
+  id          Int      @id @default(autoincrement())
+  firstName   String
+  familyName  String
+  dateOfBirth DateTime
+  email       String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+  deletedAt DateTime
+  Result    Result[]
+}
+
+model Course {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+  deletedAt DateTime
+  Result    Result[]
+}
+
+model Result {
+  id        Int     @id @default(autoincrement())
+  course    Course  @relation(fields: [courseId], references: [id])
+  courseId  Int
+  student   Student @relation(fields: [studentId], references: [id])
+  studentId Int
+  score     String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
