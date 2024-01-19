@@ -1,4 +1,3 @@
-import { Course, PrismaClient, Student } from "@prisma/client";
 import {
   Button,
   FormControl,
@@ -16,39 +15,10 @@ import { trpc } from "@/utils/trpc";
 import { showErrorMessage, showMessage } from "@/store/message";
 import { useAppDispatch } from "@/store";
 
-interface IProps {
-  courses: Course[];
-  students: Student[];
-}
+export default function AddNewResults() {
+  const { data: courses } = trpc.getAllCourses.useQuery();
+  const { data: students } = trpc.getAllStudents.useQuery();
 
-export async function getServerSideProps() {
-  const prisma = new PrismaClient();
-  const courses = await prisma.course.findMany({
-    select: {
-      id: true,
-      name: true,
-    },
-    where: {
-      isDeleted: false,
-    },
-  });
-  const students = await prisma.student.findMany({
-    select: {
-      id: true,
-      firstName: true,
-      familyName: true,
-    },
-    where: {
-      isDeleted: false,
-    },
-  });
-
-  return {
-    props: { courses, students },
-  };
-}
-
-export default function AddNewResults({ courses, students }: IProps) {
   const {
     handleSubmit,
     reset,
@@ -90,12 +60,18 @@ export default function AddNewResults({ courses, students }: IProps) {
               required: "Please select course",
             }}
             render={({ field: { onChange, value } }) => (
-              <Select value={value} onChange={onChange} label="Course Name">
-                {courses.map(({ id, name }) => (
-                  <MenuItem key={id} value={id}>
-                    {name}
-                  </MenuItem>
-                ))}
+              <Select
+                isLoading
+                value={value}
+                onChange={onChange}
+                label="Course Name"
+              >
+                {Array.isArray(courses) &&
+                  courses.map(({ id, name }) => (
+                    <MenuItem key={id} value={id}>
+                      {name}
+                    </MenuItem>
+                  ))}
               </Select>
             )}
           />
@@ -116,11 +92,12 @@ export default function AddNewResults({ courses, students }: IProps) {
             }}
             render={({ field: { onChange, value } }) => (
               <Select value={value} onChange={onChange} label="Student Name">
-                {students.map(({ id, firstName, familyName }) => (
-                  <MenuItem key={id} value={id}>
-                    {firstName + " " + familyName}
-                  </MenuItem>
-                ))}
+                {Array.isArray(students) &&
+                  students.map(({ id, firstName, familyName }) => (
+                    <MenuItem key={id} value={id}>
+                      {firstName + " " + familyName}
+                    </MenuItem>
+                  ))}
               </Select>
             )}
           />
