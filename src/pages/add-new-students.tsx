@@ -3,13 +3,13 @@ import { DatePicker } from "@mui/x-date-pickers";
 
 import { Controller, useForm } from "react-hook-form";
 import { sub } from "date-fns";
-import { useDispatch } from "react-redux";
 
 import { z } from "zod";
 
 import { Student } from ".prisma/client";
 import { trpc } from "@/utils/trpc";
 import { showMessage } from "@/store/message";
+import { useAppDispatch } from "@/store";
 
 export default function AddNewStudents() {
   const {
@@ -19,7 +19,7 @@ export default function AddNewStudents() {
     formState: { errors },
   } = useForm<Student>();
   const mutation = trpc.addNewStudent.useMutation();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const validateDOB = (dateOfBirth) => {
     try {
@@ -49,11 +49,10 @@ export default function AddNewStudents() {
     }
   };
   const onSubmit = async (student: Student) => {
-    const result = await mutation.mutateAsync(student);
-    console.log("result : ", result);
-    if (result.status === 201) {
+    const res = await mutation.mutateAsync(student);
+    if (res.status === 201) {
       reset();
-      dispatch(showMessage({ message: result.message }));
+      dispatch(showMessage({ message: res.message }));
     }
   };
   return (
@@ -119,6 +118,7 @@ export default function AddNewStudents() {
               value={value}
               inputRef={ref}
               maxDate={sub(new Date(), { years: 10 })}
+              format="MM/dd/yyyy"
               slotProps={{
                 textField: {
                   error: !!errors?.dateOfBirth,
@@ -139,6 +139,7 @@ export default function AddNewStudents() {
           defaultValue=""
           rules={{
             required: { value: true, message: "Invalid input" },
+            validate: validateEmail,
           }}
           render={({ field: { onChange, value, ref } }) => (
             <TextField
@@ -152,8 +153,8 @@ export default function AddNewStudents() {
         />
       </Grid>
 
-      <Grid item xs={12} justifyContent="right">
-        <Stack direction="row" justifyContent="end">
+      <Grid item xs={12}>
+        <Stack direction="row" justifyContent="center">
           <Button
             onClick={handleSubmit(onSubmit)}
             variant="contained"

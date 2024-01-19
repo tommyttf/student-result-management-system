@@ -3,7 +3,7 @@ import { Course } from "@prisma/client";
 import { useMemo } from "react";
 import { Grid } from "@mui/material";
 import { DataGrid, GridActionsCellItem } from "@mui/x-data-grid";
-import DeleteIcon from "@mui/icons-material/Delete";
+import CloseIcon from "@mui/icons-material/Close";
 import type { GridColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
 
 import { trpc } from "@/utils/trpc";
@@ -31,7 +31,7 @@ export default function CoursesList() {
         getActions: (params) => [
           <GridActionsCellItem
             key="delete"
-            icon={<DeleteIcon />}
+            icon={<CloseIcon />}
             label="Delete"
             onClick={async () => {
               if (

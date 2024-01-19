@@ -2,14 +2,13 @@ import { trpc } from "@/utils/trpc";
 import { useMemo } from "react";
 import { Student } from "@prisma/client";
 import { DataGrid, GridActionsCellItem } from "@mui/x-data-grid";
-import DeleteIcon from "@mui/icons-material/Delete";
+import CloseIcon from "@mui/icons-material/Close";
 import type { GridColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
 import { format } from "date-fns";
 import { Grid } from "@mui/material";
 
 export default function StudentsList() {
   const { data: students, refetch, isLoading } = trpc.getAllStudents.useQuery();
-  console.log("students : ", students);
   const mutation = trpc.deleteStudent.useMutation();
 
   const columns = useMemo<GridColDef<Student>[]>(
@@ -48,7 +47,7 @@ export default function StudentsList() {
         getActions: (params) => [
           <GridActionsCellItem
             key="delete"
-            icon={<DeleteIcon />}
+            icon={<CloseIcon />}
             label="Delete"
             onClick={async () => {
               if (

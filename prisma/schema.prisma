@@ -19,6 +19,8 @@ model Student {
   isDeleted Boolean   @default(false)
   deletedAt DateTime?
   Result    Result[]
+
+  @@unique([email, isDeleted])
 }
 
 model Course {
@@ -30,6 +32,8 @@ model Course {
   isDeleted Boolean   @default(false)
   deletedAt DateTime?
   Result    Result[]
+
+  @@unique([name, isDeleted])
 }
 
 enum Score {
@@ -51,4 +55,6 @@ model Result {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([courseId, studentId])
 }

@@ -1,27 +1,25 @@
 import { Controller, useForm } from "react-hook-form";
 import { trpc } from "@/utils/trpc";
-import { useDispatch } from "react-redux";
 import { showMessage } from "@/store/message";
 import { Button, Grid, InputLabel, Stack, TextField } from "@mui/material";
 import { Course } from "@prisma/client";
+import { useAppDispatch } from "@/store";
 
 export default function AddNewCourses() {
   const {
     handleSubmit,
     reset,
-    register,
     control,
     formState: { errors },
   } = useForm<Course>();
   const mutation = trpc.addNewCourse.useMutation();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const onSubmit = async (course: Course) => {
-    const result = await mutation.mutateAsync(course);
-    console.log("result : ", result);
-    if (result.status === 201) {
+    const res = await mutation.mutateAsync(course);
+    if (res.status === 201) {
       reset();
-      dispatch(showMessage({ message: result.message }));
+      dispatch(showMessage({ message: res.message }));
     }
   };
   return (
@@ -51,8 +49,8 @@ export default function AddNewCourses() {
         />
       </Grid>
 
-      <Grid item xs={12} justifyContent="right">
-        <Stack direction="row" justifyContent="end">
+      <Grid item xs={12}>
+        <Stack direction="row" justifyContent="center">
           <Button
             onClick={handleSubmit(onSubmit)}
             variant="contained"
