@@ -60,12 +60,7 @@ export default function AddNewResults() {
               required: "Please select course",
             }}
             render={({ field: { onChange, value } }) => (
-              <Select
-                isLoading
-                value={value}
-                onChange={onChange}
-                label="Course Name"
-              >
+              <Select value={value} onChange={onChange} label="Course Name">
                 {Array.isArray(courses) &&
                   courses.map(({ id, name }) => (
                     <MenuItem key={id} value={id}>
