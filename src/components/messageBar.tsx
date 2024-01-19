@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { hideMessage } from "@/store/message";
 
 export default function MessageBar() {
-  const { isShow, message } = useSelector((state) => state.message);
+  const { isShow, isError, message } = useSelector((state) => state.message);
   const dispatch = useDispatch();
 
   const handleClose = (
@@ -21,7 +21,11 @@ export default function MessageBar() {
 
   return (
     <Snackbar open={isShow} autoHideDuration={6000} onClose={handleClose}>
-      <Alert onClose={handleClose} severity="success" sx={{ width: "100%" }}>
+      <Alert
+        onClose={handleClose}
+        severity={!isError ? "success" : "error"}
+        sx={{ width: "100%" }}
+      >
         {message}
       </Alert>
     </Snackbar>

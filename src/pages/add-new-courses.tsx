@@ -1,6 +1,6 @@
 import { Controller, useForm } from "react-hook-form";
 import { trpc } from "@/utils/trpc";
-import { showMessage } from "@/store/message";
+import { showErrorMessage, showMessage } from "@/store/message";
 import { Button, Grid, InputLabel, Stack, TextField } from "@mui/material";
 import { Course } from "@prisma/client";
 import { useAppDispatch } from "@/store";
@@ -16,10 +16,14 @@ export default function AddNewCourses() {
   const dispatch = useAppDispatch();
 
   const onSubmit = async (course: Course) => {
-    const res = await mutation.mutateAsync(course);
-    if (res.status === 201) {
-      reset();
-      dispatch(showMessage({ message: res.message }));
+    try {
+      const res = await mutation.mutateAsync(course);
+      if (res.status === 201) {
+        reset();
+        dispatch(showMessage({ message: res.message }));
+      }
+    } catch (err) {
+      dispatch(showErrorMessage({ message: err.message }));
     }
   };
   return (

@@ -2,7 +2,8 @@ import { z } from "zod";
 
 import { PrismaClient, Score } from "@prisma/client";
 import { procedure, router } from "@/server/trpc";
-import { Result } from ".prisma/client";
+import { PrismaClientKnownRequestError, Result } from ".prisma/client";
+import { TRPCError } from "@trpc/server";
 
 const prisma = new PrismaClient({
   log: ["query"],
@@ -17,12 +18,30 @@ export const resultRouter = router({
       }),
     )
     .mutation(async (opts) => {
-      const result = await prisma.result.create({ data: opts.input });
-      return {
-        status: 201,
-        message: `Result added successfully`,
-        result,
-      };
+      try {
+        const result = await prisma.result.create({ data: opts.input });
+        return {
+          status: 201,
+          message: `Result added successfully`,
+          result,
+        };
+      } catch (err) {
+        if (
+          err instanceof PrismaClientKnownRequestError &&
+          err.code === "P2002"
+        ) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "Course result of the student already exist.",
+            cause: err,
+          });
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "An unexpected error occurred, please try again later.",
+          cause: err,
+        });
+      }
     }),
   getAllResults: procedure.query(() =>
     prisma.result.findMany({

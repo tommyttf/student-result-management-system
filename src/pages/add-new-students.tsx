@@ -8,7 +8,7 @@ import { z } from "zod";
 
 import { Student } from ".prisma/client";
 import { trpc } from "@/utils/trpc";
-import { showMessage } from "@/store/message";
+import { showErrorMessage, showMessage } from "@/store/message";
 import { useAppDispatch } from "@/store";
 
 export default function AddNewStudents() {
@@ -49,10 +49,14 @@ export default function AddNewStudents() {
     }
   };
   const onSubmit = async (student: Student) => {
-    const res = await mutation.mutateAsync(student);
-    if (res.status === 201) {
-      reset();
-      dispatch(showMessage({ message: res.message }));
+    try {
+      const res = await mutation.mutateAsync(student);
+      if (res.status === 201) {
+        reset();
+        dispatch(showMessage({ message: res.message }));
+      }
+    } catch (err) {
+      dispatch(showErrorMessage({ message: err.message }));
     }
   };
   return (

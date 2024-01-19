@@ -6,7 +6,7 @@ import { useMemo } from "react";
 import type { GridColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
 
 export default function ResultsList() {
-  const { data: results, refetch, isLoading } = trpc.getAllResults.useQuery();
+  const { data: results, isLoading } = trpc.getAllResults.useQuery();
 
   const columns = useMemo<GridColDef<Result>[]>(
     () => [

@@ -3,6 +3,8 @@ import { sub } from "date-fns";
 
 import { PrismaClient, Student } from "@prisma/client";
 import { procedure, router } from "@/server/trpc";
+import { PrismaClientKnownRequestError } from ".prisma/client";
+import { TRPCError } from "@trpc/server";
 
 const prisma = new PrismaClient();
 export const studentRouter = router({
@@ -16,12 +18,30 @@ export const studentRouter = router({
       }),
     )
     .mutation(async (opts) => {
-      const result = await prisma.student.create({ data: opts.input });
-      return {
-        status: 201,
-        message: `Student with email "${result.email}" added successfully`,
-        result,
-      };
+      try {
+        const result = await prisma.student.create({ data: opts.input });
+        return {
+          status: 201,
+          message: `Student with email "${result.email}" added successfully`,
+          result,
+        };
+      } catch (err) {
+        if (
+          err instanceof PrismaClientKnownRequestError &&
+          err.code === "P2002"
+        ) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `Student with email "${opts.input.email}" already exist.`,
+            cause: err,
+          });
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "An unexpected error occurred, please try again later.",
+          cause: err,
+        });
+      }
     }),
   getAllStudents: procedure.query(() =>
     prisma.student.findMany({

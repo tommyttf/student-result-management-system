@@ -13,7 +13,7 @@ import { Controller, useForm } from "react-hook-form";
 
 import { Result, Score } from ".prisma/client";
 import { trpc } from "@/utils/trpc";
-import { showMessage } from "@/store/message";
+import { showErrorMessage, showMessage } from "@/store/message";
 import { useAppDispatch } from "@/store";
 
 interface IProps {
@@ -53,17 +53,20 @@ export default function AddNewResults({ courses, students }: IProps) {
     handleSubmit,
     reset,
     control,
-    register,
     formState: { errors },
   } = useForm<Result>();
   const mutation = trpc.addNewResult.useMutation();
   const dispatch = useAppDispatch();
 
   const onSubmit = async (result: Result) => {
-    const res = await mutation.mutateAsync(result);
-    if (res.status === 201) {
-      reset();
-      dispatch(showMessage({ message: res.message }));
+    try {
+      const res = await mutation.mutateAsync(result);
+      if (res.status === 201) {
+        reset();
+        dispatch(showMessage({ message: res.message }));
+      }
+    } catch (err) {
+      dispatch(showErrorMessage({ message: err.message }));
     }
   };
 

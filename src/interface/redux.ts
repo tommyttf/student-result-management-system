@@ -1,5 +1,6 @@
 export interface IMessage {
   isShow: boolean;
+  isError: boolean;
   message: string;
 }
 

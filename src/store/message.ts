@@ -1,21 +1,30 @@
-import {createSlice} from '@reduxjs/toolkit'
+import { createSlice } from "@reduxjs/toolkit";
 
 const messageSlice = createSlice({
-  name: 'message',
+  name: "message",
   initialState: {
     isShow: false,
-    message: ""
+    isError: false,
+    message: "",
   },
   reducers: {
     showMessage: (state, action) => ({
       isShow: true,
-      message: action.payload.message
+      isError: false,
+      message: action.payload.message,
+    }),
+    showErrorMessage: (state, action) => ({
+      isShow: true,
+      isError: true,
+      message: action.payload.message,
     }),
     hideMessage: () => ({
       isShow: false,
-      message: ''
-    })
+      isError: false,
+      message: "",
+    }),
   },
 });
-export const {showMessage, hideMessage} = messageSlice.actions;
+export const { showMessage, showErrorMessage, hideMessage } =
+  messageSlice.actions;
 export default messageSlice.reducer;
