@@ -21,20 +21,21 @@ export default function AddNewStudents() {
   const mutation = trpc.addNewStudent.useMutation();
   const dispatch = useAppDispatch();
 
-  const validateDOB = (dateOfBirth) => {
+  const validateDOB = (dateOfBirth: Date) => {
     try {
       z.date()
         .max(sub(new Date(), { years: 10 }))
         .parse(dateOfBirth);
       return true;
     } catch (err) {
-      if (err instanceof z.ZodError) {
+      if (typeof err === "string") {
+        return err;
+      } else if (err instanceof z.ZodError) {
         if (err.issues[0].code === "too_big") {
           return "New student must be at least 10 years old";
         }
         return err.issues[0].message;
       }
-      return err?.message;
     }
   };
   const validateEmail = (email: string) => {
@@ -42,10 +43,11 @@ export default function AddNewStudents() {
       z.string().email().parse(email);
       return true;
     } catch (err) {
-      if (err instanceof z.ZodError) {
+      if (typeof err === "string") {
+        return err;
+      } else if (err instanceof z.ZodError) {
         return err.issues[0].message;
       }
-      return err?.message;
     }
   };
   const onSubmit = async (student: Student) => {
@@ -56,7 +58,11 @@ export default function AddNewStudents() {
         dispatch(showMessage({ message: res.message }));
       }
     } catch (err) {
-      dispatch(showErrorMessage({ message: err.message }));
+      if (typeof err === "string") {
+        dispatch(showErrorMessage({ message: err }));
+      } else if (err instanceof Error) {
+        dispatch(showErrorMessage({ message: err.message }));
+      }
     }
   };
   return (
@@ -111,7 +117,6 @@ export default function AddNewStudents() {
         <Controller
           control={control}
           name="dateOfBirth"
-          defaultValue={null}
           rules={{
             required: { value: true, message: "Invalid input" },
             validate: validateDOB,
@@ -166,7 +171,12 @@ export default function AddNewStudents() {
           >
             Submit
           </Button>
-          <Button onClick={reset} variant="outlined">
+          <Button
+            onClick={() => {
+              reset();
+            }}
+            variant="outlined"
+          >
             Reset
           </Button>
         </Stack>

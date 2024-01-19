@@ -8,11 +8,12 @@ import type { GridColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
 
 import { trpc } from "@/utils/trpc";
 
+type GridRowType = Pick<Course, "id" | "name">;
 export default function CoursesList() {
   const { data: courses, refetch, isLoading } = trpc.getAllCourses.useQuery();
   const mutation = trpc.deleteCourse.useMutation();
 
-  const columns = useMemo<GridColDef<Course>[]>(
+  const columns = useMemo<GridColDef<GridRowType>[]>(
     () => [
       {
         field: "name",
@@ -40,7 +41,7 @@ export default function CoursesList() {
                 )
               ) {
                 const result = await mutation.mutateAsync({
-                  id: params.id,
+                  id: Number(params.id),
                 });
                 if (result.status === 201) {
                   await refetch();
@@ -56,7 +57,7 @@ export default function CoursesList() {
 
   return (
     <Grid container style={{ height: 550 }}>
-      <DataGrid<Course[]>
+      <DataGrid<GridRowType>
         loading={isLoading}
         rows={courses ?? []}
         pageSizeOptions={[10, 15, 20, 100]}

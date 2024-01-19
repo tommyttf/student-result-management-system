@@ -1,17 +1,19 @@
-import { z } from "zod";
+import { z, ZodNativeEnum, ZodNumber } from "zod";
 
-import { PrismaClient, Score } from "@prisma/client";
+import { Prisma, PrismaClient, Score } from "@prisma/client";
 import { procedure, router } from "@/server/trpc";
-import { PrismaClientKnownRequestError, Result } from ".prisma/client";
 import { TRPCError } from "@trpc/server";
+import { $Enums } from ".prisma/client";
 
-const prisma = new PrismaClient({
-  log: ["query"],
-});
+const prisma = new PrismaClient();
 export const resultRouter = router({
   addNewResult: procedure
     .input(
-      z.object<Result>({
+      z.object<{
+        courseId: ZodNumber;
+        studentId: ZodNumber;
+        score: ZodNativeEnum<typeof $Enums.Score>;
+      }>({
         courseId: z.number(),
         studentId: z.number(),
         score: z.nativeEnum(Score),
@@ -27,7 +29,7 @@ export const resultRouter = router({
         };
       } catch (err) {
         if (
-          err instanceof PrismaClientKnownRequestError &&
+          err instanceof Prisma.PrismaClientKnownRequestError &&
           err.code === "P2002"
         ) {
           throw new TRPCError({

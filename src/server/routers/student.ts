@@ -1,16 +1,20 @@
-import { z } from "zod";
+import { z, ZodDate, ZodString } from "zod";
 import { sub } from "date-fns";
 
-import { PrismaClient, Student } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { procedure, router } from "@/server/trpc";
-import { PrismaClientKnownRequestError } from ".prisma/client";
 import { TRPCError } from "@trpc/server";
 
 const prisma = new PrismaClient();
 export const studentRouter = router({
   addNewStudent: procedure
     .input(
-      z.object<Student>({
+      z.object<{
+        firstName: ZodString;
+        familyName: ZodString;
+        dateOfBirth: ZodDate;
+        email: ZodString;
+      }>({
         firstName: z.string(),
         familyName: z.string(),
         dateOfBirth: z.date().max(sub(new Date(), { years: 10 })),
@@ -27,7 +31,7 @@ export const studentRouter = router({
         };
       } catch (err) {
         if (
-          err instanceof PrismaClientKnownRequestError &&
+          err instanceof Prisma.PrismaClientKnownRequestError &&
           err.code === "P2002"
         ) {
           throw new TRPCError({

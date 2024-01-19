@@ -66,7 +66,11 @@ export default function AddNewResults({ courses, students }: IProps) {
         dispatch(showMessage({ message: res.message }));
       }
     } catch (err) {
-      dispatch(showErrorMessage({ message: err.message }));
+      if (typeof err === "string") {
+        dispatch(showErrorMessage({ message: err }));
+      } else if (err instanceof Error) {
+        dispatch(showErrorMessage({ message: err.message }));
+      }
     }
   };
 
@@ -82,7 +86,6 @@ export default function AddNewResults({ courses, students }: IProps) {
           <Controller
             name="courseId"
             control={control}
-            defaultValue=""
             rules={{
               required: "Please select course",
             }}
@@ -108,7 +111,6 @@ export default function AddNewResults({ courses, students }: IProps) {
           <Controller
             name="studentId"
             control={control}
-            defaultValue=""
             rules={{
               required: "Please select student",
             }}
@@ -134,7 +136,6 @@ export default function AddNewResults({ courses, students }: IProps) {
           <Controller
             name="score"
             control={control}
-            defaultValue=""
             rules={{
               required: "Please select score",
             }}
@@ -163,7 +164,12 @@ export default function AddNewResults({ courses, students }: IProps) {
           >
             Submit
           </Button>
-          <Button onClick={reset} variant="outlined">
+          <Button
+            onClick={() => {
+              reset();
+            }}
+            variant="outlined"
+          >
             Reset
           </Button>
         </Stack>

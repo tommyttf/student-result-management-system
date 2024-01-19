@@ -7,11 +7,16 @@ import type { GridColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
 import { format } from "date-fns";
 import { Grid } from "@mui/material";
 
+type GridRowType = Omit<
+  Student,
+  "createdAt" | "updatedAt" | "isDeleted" | "deletedAt"
+>;
+
 export default function StudentsList() {
   const { data: students, refetch, isLoading } = trpc.getAllStudents.useQuery();
   const mutation = trpc.deleteStudent.useMutation();
 
-  const columns = useMemo<GridColDef<Student>[]>(
+  const columns = useMemo<GridColDef<GridRowType>[]>(
     () => [
       {
         field: "Name & Family name",
@@ -56,7 +61,7 @@ export default function StudentsList() {
                 )
               ) {
                 const result = await mutation.mutateAsync({
-                  id: params.id,
+                  id: Number(params.id),
                 });
                 if (result.status === 201) {
                   await refetch();
@@ -72,7 +77,7 @@ export default function StudentsList() {
 
   return (
     <Grid container style={{ height: 550 }}>
-      <DataGrid<Student[]>
+      <DataGrid<GridRowType>
         loading={isLoading}
         rows={students ?? []}
         pageSizeOptions={[10, 15, 20, 100]}

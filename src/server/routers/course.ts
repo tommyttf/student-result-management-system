@@ -1,8 +1,7 @@
-import { z } from "zod";
+import { z, ZodString } from "zod";
 
-import { Course, PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { procedure, router } from "@/server/trpc";
-import { PrismaClientKnownRequestError } from ".prisma/client";
 import { TRPCError } from "@trpc/server";
 
 const prisma = new PrismaClient();
@@ -10,7 +9,7 @@ export const courseRouter = router({
   // course api
   addNewCourse: procedure
     .input(
-      z.object<Course>({
+      z.object<{ name: ZodString }>({
         name: z.string(),
       }),
     )
@@ -24,7 +23,7 @@ export const courseRouter = router({
         };
       } catch (err) {
         if (
-          err instanceof PrismaClientKnownRequestError &&
+          err instanceof Prisma.PrismaClientKnownRequestError &&
           err.code === "P2002"
         ) {
           throw new TRPCError({

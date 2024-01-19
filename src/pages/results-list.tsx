@@ -1,14 +1,32 @@
 import { Grid } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { Result } from ".prisma/client";
 import { trpc } from "@/utils/trpc";
 import { useMemo } from "react";
 import type { GridColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
+import { Prisma } from "@prisma/client";
 
+type GridRowType = Omit<
+  Prisma.ResultGetPayload<{
+    include: {
+      course: {
+        select: {
+          name: true;
+        };
+      };
+      student: {
+        select: {
+          firstName: true;
+          familyName: true;
+        };
+      };
+    };
+  }>,
+  "courseId" | "studentId" | "createdAt" | "updatedAt"
+>;
 export default function ResultsList() {
   const { data: results, isLoading } = trpc.getAllResults.useQuery();
 
-  const columns = useMemo<GridColDef<Result>[]>(
+  const columns = useMemo<GridColDef<GridRowType>[]>(
     () => [
       {
         field: "course.name",
@@ -40,7 +58,7 @@ export default function ResultsList() {
 
   return (
     <Grid container style={{ height: 550 }}>
-      <DataGrid<Result[]>
+      <DataGrid<GridRowType>
         loading={isLoading}
         rows={results ?? []}
         pageSizeOptions={[10, 15, 20, 100]}
