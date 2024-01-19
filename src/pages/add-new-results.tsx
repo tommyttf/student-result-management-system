@@ -21,7 +21,7 @@ interface IProps {
   students: Student[];
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   const prisma = new PrismaClient();
   const courses = await prisma.course.findMany({
     select: {
