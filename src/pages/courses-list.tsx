@@ -43,7 +43,7 @@ export default function CoursesList() {
                   id: params.id,
                 });
                 if (result.status === 201) {
-                  refetch();
+                  await refetch();
                 }
               }
             }}

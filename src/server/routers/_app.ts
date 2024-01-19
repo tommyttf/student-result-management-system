@@ -1,11 +1,30 @@
 import { z } from "zod";
 import { procedure, router } from "../trpc";
 
-import { PrismaClient } from "@prisma/client";
+import { Course, PrismaClient, Student } from "@prisma/client";
+import { sub } from "date-fns";
 
 const prisma = new PrismaClient();
 
 export const appRouter = router({
+  // student api
+  addNewStudent: procedure
+    .input(
+      z.object<Student>({
+        firstName: z.string(),
+        familyName: z.string(),
+        dateOfBirth: z.date().max(sub(new Date(), { years: 10 })),
+        email: z.string().email(),
+      }),
+    )
+    .mutation(async (opts) => {
+      const result = await prisma.student.create({ data: opts.input });
+      return {
+        status: 201,
+        message: `Student with email "${result.email}" added successfully`,
+        result,
+      };
+    }),
   getAllStudents: procedure.query(() =>
     prisma.student.findMany({
       select: {
@@ -40,7 +59,22 @@ export const appRouter = router({
 
       return {
         status: 201,
-        message: `Student with id ${id} deleted successfully`,
+        message: `Student with email "${result.email}" deleted successfully`,
+        result,
+      };
+    }),
+  // course api
+  addNewCourse: procedure
+    .input(
+      z.object<Course>({
+        name: z.string(),
+      }),
+    )
+    .mutation(async (opts) => {
+      const result = await prisma.course.create({ data: opts.input });
+      return {
+        status: 201,
+        message: `Course with name "${result.name}" added successfully`,
         result,
       };
     }),
@@ -75,7 +109,7 @@ export const appRouter = router({
 
       return {
         status: 201,
-        message: `Course with id ${id} deleted successfully`,
+        message: `Course with name "${result.name}" deleted successfully`,
         result,
       };
     }),

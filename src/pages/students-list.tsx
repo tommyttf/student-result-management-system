@@ -60,7 +60,7 @@ export default function StudentsList() {
                   id: params.id,
                 });
                 if (result.status === 201) {
-                  refetch();
+                  await refetch();
                 }
               }
             }}
