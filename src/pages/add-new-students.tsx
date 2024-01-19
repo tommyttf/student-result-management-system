@@ -11,17 +11,18 @@ import { trpc } from "@/utils/trpc";
 import { showErrorMessage, showMessage } from "@/store/message";
 import { useAppDispatch } from "@/store";
 
+type FormType = Omit<Student, "dateOfBirth"> & { dateOfBirth: Date | null };
 export default function AddNewStudents() {
   const {
     handleSubmit,
     reset,
     control,
     formState: { errors },
-  } = useForm<Student>();
+  } = useForm<FormType>();
   const mutation = trpc.addNewStudent.useMutation();
   const dispatch = useAppDispatch();
 
-  const validateDOB = (dateOfBirth: Date) => {
+  const validateDOB = (dateOfBirth: Date | null) => {
     try {
       z.date()
         .max(sub(new Date(), { years: 10 }))
@@ -50,12 +51,17 @@ export default function AddNewStudents() {
       }
     }
   };
-  const onSubmit = async (student: Student) => {
+  const onSubmit = async (student: FormType) => {
     try {
-      const res = await mutation.mutateAsync(student);
-      if (res.status === 201) {
-        reset();
-        dispatch(showMessage({ message: res.message }));
+      if (student.dateOfBirth !== null) {
+        const res = await mutation.mutateAsync({
+          ...student,
+          dateOfBirth: student.dateOfBirth,
+        });
+        if (res.status === 201) {
+          reset();
+          dispatch(showMessage({ message: res.message }));
+        }
       }
     } catch (err) {
       if (typeof err === "string") {
@@ -117,6 +123,7 @@ export default function AddNewStudents() {
         <Controller
           control={control}
           name="dateOfBirth"
+          defaultValue={null}
           rules={{
             required: { value: true, message: "Invalid input" },
             validate: validateDOB,
